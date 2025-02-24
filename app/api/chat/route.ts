@@ -1,18 +1,20 @@
 import { createResource } from "@/lib/actions/resources"
-import { createFireworks } from "@ai-sdk/fireworks"
 import { streamText, tool } from "ai"
 import { z } from "zod"
 import { findRelevantContent } from "@/lib/ai/embedding"
+import { createTogetherAI } from "@ai-sdk/togetherai"
 
-const fireworks = createFireworks({
-  apiKey: process.env.FIREWORKS_API_KEY ?? "",
+const togetherai = createTogetherAI({
+  apiKey: process.env.TOGETHER_AI_API_KEY ?? "",
 })
+
+const model = togetherai("google/gemma-2-9b-it")
 
 export async function POST(req: Request) {
   const { messages } = await req.json()
 
   const result = streamText({
-    model: fireworks("accounts/fireworks/models/llama-v3p3-70b-instruct"),
+    model: model,
     system: `You are a helpful assistant. Check your knowledge base before answering any questions.
     Only respond to questions using information from tool calls.
     if no relevant information is found in the tool calls, respond, "Sorry, I don't know."`,

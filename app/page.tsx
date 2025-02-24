@@ -3,10 +3,24 @@
 import { useChat } from "ai/react"
 import { useEffect } from "react"
 
+const endpoints = {
+  rag: "http://43.199.182.104:9021/api/v1/agents/personal-chat/action?response_type=data&is_smooth_stream=1&model=deepseek-chat",
+  chat: "https://personal-ai-agent.super-innovation-group.com/api/v1/agents/langgraph/chat/test",
+}
+
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
+  const { messages, input, handleInputChange, handleSubmit, isLoading, error } =
     useChat({
-      maxSteps: 3
+      api: endpoints.rag,
+      headers: {
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_AI_API_TOKEN}`,
+      },
+      experimental_prepareRequestBody({ messages }) {
+        return {
+          messages,
+          vector_collection_id: "e4bffead-b1f2-4b9d-bb3c-a9876794b7b6",
+        }
+      },
     })
 
   const scrollToBottom = () => {
@@ -39,11 +53,8 @@ export default function Chat() {
             </div>
           </div>
         ))}
-        {isLoading && (
-          <div className="italic font-light">
-            {"thinking..."}
-          </div>
-        )}
+        {error && <div className="italic font-light">{"error"}</div>}
+        {isLoading && <div className="italic font-light">{"thinking..."}</div>}
       </div>
 
       <form onSubmit={handleSubmit}>
